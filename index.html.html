@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Heart To Falling Photos</title>
+
+  <style>
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+    }
+
+    html,body{
+      width:100%;
+      height:100%;
+      overflow:hidden;
+      font-family:Arial,sans-serif;
+      background:
+        radial-gradient(circle at top, rgba(255,120,180,0.2), transparent 30%),
+        radial-gradient(circle at bottom, rgba(120,100,255,0.25), transparent 32%),
+        linear-gradient(180deg,#0f0520 0%,#010108 100%);
+    }
+
+    body::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      background-image:
+        radial-gradient(2px 2px at 10% 20%, rgba(255,255,255,.95), transparent 60%),
+        radial-gradient(2px 2px at 20% 70%, rgba(255,255,255,.8), transparent 60%),
+        radial-gradient(1.5px 1.5px at 35% 35%, rgba(255,255,255,.9), transparent 60%),
+        radial-gradient(2px 2px at 50% 15%, rgba(255,255,255,.85), transparent 60%),
+        radial-gradient(1.5px 1.5px at 65% 45%, rgba(255,255,255,.88), transparent 60%),
+        radial-gradient(2px 2px at 82% 30%, rgba(255,255,255,.92), transparent 60%),
+        radial-gradient(2px 2px at 90% 72%, rgba(255,255,255,.86), transparent 60%);
+      animation:twinkle 4s ease-in-out infinite;
+    }
+
+    @keyframes twinkle{
+      0%,100%{
+        opacity:1;
+      }
+      50%{
+        opacity:.4;
+      }
+    }
+
+    #heart{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      z-index:1;
+      background:rgba(0,0,0,0.12);
+      transition:opacity 1.4s ease, transform 1.4s ease, filter 1.4s ease;
+    }
+
+    #heart.hide{
+      opacity:0;
+      transform:scale(0.94);
+      filter:blur(6px);
+      pointer-events:none;
+    }
+
+    #falling-scene{
+      position:absolute;
+      inset:0;
+      z-index:2;
+      opacity:0;
+      transition:1.5s;
+      overflow:hidden;
+      pointer-events:none;
+    }
+
+    #falling-scene.show{
+      opacity:1;
+    }
+
+    .photo-container{
+      position:absolute;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      opacity:0;
+      animation:floatPhoto 4s ease-in-out infinite;
+    }
+
+    @keyframes floatPhoto{
+      0%{
+        transform:translateY(0px) rotate(-2deg);
+      }
+      50%{
+        transform:translateY(-10px) rotate(2deg);
+      }
+      100%{
+        transform:translateY(0px) rotate(-2deg);
+      }
+    }
+
+    .string{
+      width:5px;
+      background:linear-gradient(to bottom, rgba(255,255,255,0.98), rgba(255,255,255,0.5));
+      box-shadow:
+        0 0 10px rgba(255,120,190,1),
+        0 0 15px rgba(160,120,255,.8);
+      border-radius:5px;
+    }
+
+    .photo-frame{
+      width:130px;
+      height:175px;
+      border-radius:20px;
+      overflow:hidden;
+      border:5px solid rgba(255,255,255,.9);
+      background:rgba(255,255,255,.15);
+      box-shadow:
+        0 25px 60px rgba(0,0,0,.8),
+        0 0 35px rgba(255,120,190,.45);
+      margin-top:-5px;
+      position:relative;
+    }
+
+    .photo-frame::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(
+        135deg,
+        rgba(255,255,255,.45) 0%,
+        rgba(255,255,255,.15) 35%,
+        transparent 70%
+      );
+    }
+
+    .photo-frame img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+    }
+
+    #message-container{
+      position:absolute;
+      inset:0;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      z-index:3;
+      opacity:0;
+      pointer-events:none;
+      transition:1s;
+    }
+
+    #message-container.show{
+      opacity:1;
+      pointer-events:auto;
+    }
+
+    #birthday-message{
+      color:white;
+      font-size:2.5rem;
+      text-align:center;
+      margin-bottom:50px;
+      text-shadow:
+        0 0 30px rgba(255,120,190,1),
+        0 0 60px rgba(160,120,255,.9);
+      font-weight:bold;
+      letter-spacing:2px;
+    }
+
+    #open-letter-btn{
+      padding:20px 55px;
+      border:none;
+      border-radius:60px;
+      font-size:1.3rem;
+      font-weight:bold;
+      color:white;
+      cursor:pointer;
+      background:linear-gradient(135deg,#ff5ea8,#8c6dff);
+      box-shadow:0 15px 50px rgba(255,120,190,.7);
+      transition:.3s;
+    }
+
+    #open-letter-btn:hover{
+      transform:scale(1.08);
+    }
+
+    #envelope-container{
+      position:absolute;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:rgba(0,0,0,.45);
+      z-index:4;
+      opacity:0;
+      pointer-events:none;
+      transition:1s;
+    }
+
+    #envelope-container.show{
+      opacity:1;
+      pointer-events:auto;
+    }
+
+    .envelope{
+      position:relative;
+      width:420px;
+      height:300px;
+      border-radius:30px;
+      background:linear-gradient(180deg, #ffcde0 0%, #ff93b0 50%, #ff7093 100%);
+      box-shadow:
+        0 45px 100px rgba(0,0,0,.8),
+        0 0 70px rgba(255,100,160,.6),
+        inset 0 3px 15px rgba(255,255,255,.7);
+      cursor:pointer;
+      overflow:hidden;
+      border:4px solid rgba(255,255,255,.45);
+      backdrop-filter:blur(15px);
+      transition:opacity 1s ease, transform 1s ease;
+    }
+
+    .envelope::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      border-radius:30px;
+      background:
+        radial-gradient(circle at 12% 12%, rgba(255,255,255,.55), transparent 30%),
+        radial-gradient(circle at 88% 18%, rgba(255,255,255,.4), transparent 32%),
+        radial-gradient(circle at 50% 92%, rgba(255,255,255,.28), transparent 38%);
+      pointer-events:none;
+    }
+
+    .envelope::after{
+      content:"❤️";
+      position:absolute;
+      top:52%;
+      left:50%;
+      transform:translate(-50%,-50%);
+      font-size:80px;
+      z-index:6;
+      filter:drop-shadow(0 6px 25px rgba(255,0,85,.7));
+      animation:heartPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes heartPulse{
+      0%,100%{
+        transform:translate(-50%,-50%) scale(1);
+      }
+      50%{
+        transform:translate(-50%,-50%) scale(1.2);
+      }
+    }
+
+    .bow{
+      position:absolute;
+      top:-55px;
+      left:50%;
+      transform:translateX(-50%);
+      z-index:7;
+      filter:drop-shadow(0 8px 20px rgba(0,0,0,.5));
+    }
+
+    .bow-left,
+    .bow-right{
+      position:absolute;
+      width:85px;
+      height:58px;
+      background:linear-gradient(180deg,#ff789a 0%,#ff4070 100%);
+      border-radius:50% 50% 50% 50%;
+      box-shadow:
+        inset 0 3px 10px rgba(255,255,255,.45),
+        0 5px 15px rgba(0,0,0,.4);
+    }
+
+    .bow-left{
+      right:30px;
+      transform:rotate(-20deg);
+    }
+
+    .bow-right{
+      left:30px;
+      transform:rotate(20deg);
+    }
+
+    .bow-center{
+      position:absolute;
+      top:10px;
+      left:50%;
+      transform:translateX(-50%);
+      width:45px;
+      height:45px;
+      background:linear-gradient(180deg,#ff5580 0%,#dd1050 100%);
+      border-radius:50%;
+      box-shadow:
+        inset 0 3px 10px rgba(255,255,255,.45),
+        0 5px 15px rgba(0,0,0,.4);
+    }
+
+    .bow-knot{
+      position:absolute;
+      top:-22px;
+      left:50%;
+      transform:translateX(-50%);
+      width:20px;
+      height:55px;
+      background:linear-gradient(180deg,#ff5580 0%,#dd1050 100%);
+      border-radius:7px;
+      box-shadow:
+        inset 0 3px 8px rgba(255,255,255,.4),
+        0 5px 15px rgba(0,0,0,.4);
+    }
+
+    .envelope-flap{
+      position:absolute;
+      top:0;
+      left:0;
+      width:100%;
+      height:65%;
+      background:linear-gradient(180deg,#ffdfe8 0%,#ffa0b8 100%);
+      clip-path:polygon(0 0,50% 100%,100% 0);
+      transform-origin:top;
+      transition:transform 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      z-index:5;
+      box-shadow:
+        inset 0 3px 8px rgba(255,255,255,.35),
+        0 -4px 18px rgba(0,0,0,.3);
+    }
+
+    .envelope.open .envelope-flap{
+      transform:rotateX(180deg);
+    }
+
+    .envelope-body{
+      position:absolute;
+      bottom:0;
+      left:0;
+      width:100%;
+      height:80%;
+      background:linear-gradient(180deg,#ffcde0 0%,#ff7a98 100%);
+      border-radius:0 0 30px 30px;
+      z-index:3;
+      box-shadow:
+        inset 0 -4px 12px rgba(0,0,0,.18);
+    }
+
+    .letter{
+      position:absolute;
+      bottom:30px;
+      left:50%;
+      transform:translateX(-50%);
+      width:88%;
+      height:190px;
+      background:#ffffff;
+      border-radius:20px;
+      padding:40px;
+      overflow:hidden;
+      transition:all 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      box-shadow:
+        0 22px 55px rgba(0,0,0,.4),
+        inset 0 1px 4px rgba(0,0,0,.12);
+    }
+
+    .letter textarea{
+      width:100%;
+      height:100%;
+      border:none;
+      outline:none;
+      resize:none;
+      overflow-y:auto;
+      background:transparent;
+      font-size:1.4rem;
+      line-height:2.3;
+      font-family:'Georgia', 'Times New Roman', serif;
+      color:#25151c;
+      padding-top:10px;
+    }
+
+    .envelope.open .letter{
+      position:fixed;
+      inset:0;
+      width:100%;
+      height:100%;
+      border-radius:0;
+      padding:75px 55px;
+      z-index:30;
+      box-shadow:none;
+      opacity:1;
+    }
+
+    @media(max-width:768px){
+
+      #birthday-message{
+        font-size:1.8rem;
+        padding:0 20px;
+      }
+
+      .photo-frame{
+        width:90px;
+        height:120px;
+      }
+
+      .envelope{
+        width:340px;
+        height:240px;
+      }
+
+      .envelope.open .letter{
+        padding:55px 35px;
+      }
+
+      .letter textarea{
+        font-size:1.2rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<canvas id="heart"></canvas>
+
+<div id="falling-scene"></div>
+
+<div id="message-container">
+  <div id="birthday-message">
+    Chúc em 1 tháng 6 vui vẻ nhiều nha ❤️
+  </div>
+
+  <button id="open-letter-btn">
+    Mở lá thư 🎀
+  </button>
+</div>
+
+<div id="envelope-container">
+
+  <div class="envelope" id="envelope">
+
+    <div class="bow">
+      <div class="bow-left"></div>
+      <div class="bow-right"></div>
+      <div class="bow-knot"></div>
+      <div class="bow-center"></div>
+    </div>
+
+    <div class="envelope-flap"></div>
+
+    <div class="envelope-body"></div>
+
+    <div class="letter">
+      <textarea>anh yeu em rat nhieu</textarea>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+
+window.requestAnimationFrame =
+  window.__requestAnimationFrame ||
+  window.requestAnimationFrame ||
+  window.webkitRequestAnimationFrame ||
+  window.mozRequestAnimationFrame ||
+  window.oRequestAnimationFrame ||
+  window.msRequestAnimationFrame ||
+  (function () {
+    return function (callback, element) {
+      var lastTime = element && element.__lastTime;
+      if (lastTime === undefined) lastTime = 0;
+      var currTime = Date.now();
+      var timeToCall = Math.max(1, 33 - (currTime - lastTime));
+      window.setTimeout(callback, timeToCall);
+      if (element) element.__lastTime = currTime + timeToCall;
+    };
+  })();
+
+window.isDevice = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(
+  ((navigator.userAgent || navigator.vendor || window.opera) + "").toLowerCase()
+);
+
+const imageLinks = [
+  "https://cdn.phototourl.com/free/2026-05-28-d89dcf79-a735-40e6-9678-23911530293c.jpg",
+      "https://cdn.phototourl.com/free/2026-05-28-e2dc33bc-91d7-4ea0-94d2-276398ec771d.jpg",
+      "https://cdn.phototourl.com/free/2026-05-28-ad2b4387-f58d-4e58-8dfe-b4cf62a1abf0.jpg",
+      "https://cdn.phototourl.com/free/2026-05-28-cc19039f-e1f8-419b-9048-9e43ef3fa67f.jpg",
+      "https://cdn.phototourl.com/free/2026-05-28-363e8d54-d8d2-4951-befb-4e8647061c91.jpg",
+      "https://cdn.phototourl.com/free/2026-05-28-6cab9ecf-c18f-4b9c-aa0a-1743fe06ecc3.jpg",
+      "https://cdn.phototourl.com/free/2026-05-28-c6b2791d-78b6-42c5-8790-53245b09e1a2.jpg",
+      "https://cdn.phototourl.com/free/2026-05-28-80a1340f-743e-4f44-bb60-e82a87281bf0.jpg",
+      "https://cdn.phototourl.com/free/2026-05-28-b4ea41d5-e7ae-4ad0-8c70-472da061641c.jpg",
+      "https://cdn.phototourl.com/free/2026-05-28-b4ea41d5-e7ae-4ad0-8c70-472da061641c.jpg",
+      "https://cdn.phototourl.com/free/2026-05-28-f0bf8bda-3ab1-417f-a7e6-ffea8f4beec8.jpg",
+      "https://cdn.phototourl.com/member/2026-05-28-3ae4c82f-24ff-48b7-a4a9-f5bfc32d8949.jpg",
+      "https://cdn.phototourl.com/member/2026-05-28-cb2c82a5-ae30-49b2-8292-6b19712d3c47.jpg",
+      "https://cdn.phototourl.com/member/2026-05-28-d8e48673-58b9-47ec-bc5e-986b185acad0.jpg",
+      "https://cdn.phototourl.com/member/2026-05-28-af4c5106-e4a3-4d7f-a65b-6c1490ce8875.jpg",
+      "https://cdn.phototourl.com/member/2026-05-28-0cf0535f-37ce-451f-8f29-1f63b98d02aa.jpg",
+      "https://cdn.phototourl.com/member/2026-05-28-1c822fdf-5873-47c7-bf02-d29e77b5847a.jpg",
+      "https://cdn.phototourl.com/member/2026-05-28-ef7b7d23-a7d3-4d93-b0ea-25c71f4a187a.jpg",
+      "https://cdn.phototourl.com/member/2026-05-28-d80e8372-df9b-47d8-bdfd-6e3ef3cfb977.jpg",
+      "https://cdn.phototourl.com/member/2026-05-28-e0e5e921-0f6b-42f8-b9ab-53ba876548a1.jpg"
+];
+
+let loaded = false;
+let heartStopped = false;
+let fallingStarted = false;
+
+function showMessage(){
+  document.getElementById("message-container").classList.add("show");
+}
+
+function createFallingPhotos(){
+  if(fallingStarted) return;
+  fallingStarted = true;
+
+  const scene = document.getElementById("falling-scene");
+  scene.classList.add("show");
+
+  const mobile = window.innerWidth < 768;
+  const photoWidth = mobile ? 90 : 130;
+  const photoHeight = mobile ? 120 : 175;
+  const stringLength = window.innerHeight * 0.42;
+  let photosFaded = 0;
+  let usedXPositions = [];
+
+  function getRandomX(){
+    for(let t=0;t<100;t++){
+      let x = 25 + Math.random() * (window.innerWidth - photoWidth - 50);
+      let tooClose = false;
+      for(let j=0;j<usedXPositions.length;j++){
+        if(Math.abs(x - usedXPositions[j]) < photoWidth + 40){
+          tooClose = true;
+          break;
+        }
+      }
+      if(!tooClose){
+        usedXPositions.push(x);
+        return x;
+      }
+    }
+    return Math.random() * window.innerWidth;
+  }
+
+  imageLinks.forEach((link,index)=>{
+    const container = document.createElement("div");
+    container.className = "photo-container";
+
+    const string = document.createElement("div");
+    string.className = "string";
+    string.style.height = stringLength + "px";
+
+    const frame = document.createElement("div");
+    frame.className = "photo-frame";
+
+    const img = document.createElement("img");
+    img.src = link;
+
+    frame.appendChild(img);
+    container.appendChild(string);
+    container.appendChild(frame);
+
+    const xPos = getRandomX();
+    container.style.left = xPos + "px";
+    container.style.top = "-" + (photoHeight + stringLength + 300 + Math.random()*200) + "px";
+    scene.appendChild(container);
+
+    const delay = 1000 + index * 1800 + Math.random() * 1200;
+
+    setTimeout(()=>{
+      const finalY = (window.innerHeight * (0.35 + Math.random()*0.4)) - photoHeight - stringLength;
+      container.style.transition = "opacity .8s ease, top 7.5s cubic-bezier(0.25,0.46,0.45,0.94)";
+      container.style.opacity = "1";
+      container.style.top = finalY + "px";
+
+      container.addEventListener("transitionend",function handler(e){
+        if(e.propertyName !== "top") return;
+        container.removeEventListener("transitionend", handler);
+
+        setTimeout(()=>{
+          container.style.transition = "opacity 1.5s ease";
+          container.style.opacity = "0";
+
+          container.addEventListener("transitionend",function fadeHandler(e2){
+            if(e2.propertyName !== "opacity") return;
+            container.removeEventListener("transitionend", fadeHandler);
+
+            photosFaded++;
+            if(photosFaded >= imageLinks.length){
+              setTimeout(()=> showMessage(), 800);
+            }
+          });
+        },1500);
+      });
+    },delay);
+  });
+}
+
+document.getElementById("open-letter-btn").addEventListener("click",()=>{
+  document.getElementById("message-container").style.opacity = "0";
+  document.getElementById("falling-scene").style.opacity = "0";
+
+  setTimeout(()=>{
+    document.getElementById("envelope-container").classList.add("show");
+  },500);
+});
+
+document.getElementById("envelope").addEventListener("click",function(){
+  if(!this.classList.contains("open")){
+    this.classList.add("open");
+    
+    const letter = this.querySelector('.letter');
+    const envelopeContainer = document.getElementById('envelope-container');
+    
+    setTimeout(()=>{
+      this.style.opacity = "0";
+      this.style.transform = "scale(0.4)";
+      
+      setTimeout(()=>{
+        this.style.display = "none";
+        envelopeContainer.style.background = "transparent";
+        letter.style.transition = "none";
+      }, 1000);
+    }, 500);
+  }
+});
+
+function initHeart(){
+  if(loaded) return;
+  loaded = true;
+
+  var mobile = window.isDevice;
+  var koef = mobile ? 0.5 : 1;
+  var canvas = document.getElementById("heart");
+  var ctx = canvas.getContext("2d");
+  var width = canvas.width = koef * innerWidth;
+  var height = canvas.height = koef * innerHeight;
+  var rand = Math.random;
+
+  ctx.fillStyle = "rgba(0,0,0,1)";
+  ctx.fillRect(0, 0, width, height);
+
+  function heartPosition(rad){
+    return[
+      Math.pow(Math.sin(rad), 3),
+      -(15 * Math.cos(rad) - 5 * Math.cos(2 * rad) - 2 * Math.cos(3 * rad) - Math.cos(4 * rad))
+    ];
+  }
+
+  function scaleAndTranslate(pos, sx, sy, dx, dy){
+    return[dx + pos[0]*sx, dy + pos[1]*sy];
+  }
+
+  window.addEventListener("resize", function () {
+    width = canvas.width = koef * innerWidth;
+    height = canvas.height = koef * innerHeight;
+    ctx.fillStyle = "rgba(0,0,0,1)";
+    ctx.fillRect(0, 0, width, height);
+  });
+
+  var traceCount = mobile ? 20 : 50;
+  var pointsOrigin = [];
+  var i;
+  var dr = mobile ? 0.3 : 0.1;
+
+  for(i = 0; i < Math.PI * 2; i += dr){
+    pointsOrigin.push(scaleAndTranslate(heartPosition(i), 210, 13, 0, 0));
+  }
+  for(i = 0; i < Math.PI * 2; i += dr){
+    pointsOrigin.push(scaleAndTranslate(heartPosition(i), 150, 9, 0, 0));
+  }
+  for(i = 0; i < Math.PI * 2; i += dr){
+    pointsOrigin.push(scaleAndTranslate(heartPosition(i), 90, 5, 0, 0));
+  }
+
+  var heartPointsCount = pointsOrigin.length;
+  var targetPoints = [];
+
+  function pulse(kx, ky){
+    for(i = 0; i < pointsOrigin.length; i++){
+      targetPoints[i] = [];
+      targetPoints[i][0] = kx * pointsOrigin[i][0] + width / 2;
+      targetPoints[i][1] = ky * pointsOrigin[i][1] + height / 2;
+    }
+  }
+
+  var e = [];
+  for(i = 0; i < heartPointsCount; i++){
+    var x = rand() * width;
+    var y = rand() * height;
+    var trace = [];
+    for(var k = 0; k < traceCount; k++){
+      trace[k] = {x: x, y: y};
+    }
+
+    e[i] = {
+      vx: 0, vy: 0,
+      speed: rand() + 5,
+      q: ~~(rand() * heartPointsCount),
+      D: 2 * (i % 2) - 1,
+      force: 0.2 * rand() + 0.7,
+      f: "hsla(0," + ~~(40 * rand() + 60) + "%," + ~~(60 * rand() + 20) + "%,.3)",
+      trace: trace
+    };
+  }
+
+  var config = {traceK: 0.4, timeDelta: 0.01};
+  var time = 0;
+  var startTime = Date.now();
+
+  function loop(){
+    if(heartStopped) return;
+
+    var n = -Math.cos(time);
+    pulse((1 + n) * 0.5, (1 + n) * 0.5);
+    time += ((Math.sin(time) < 0) ? 9 : (n > 0.8 ? 0.2 : 1)) * config.timeDelta;
+
+    ctx.fillStyle = "rgba(0,0,0,.1)";
+    ctx.fillRect(0, 0, width, height);
+
+    for(i = e.length; i--;){
+      var u = e[i];
+      var q = targetPoints[u.q];
+      var dx = u.trace[0].x - q[0];
+      var dy = u.trace[0].y - q[1];
+      var length = Math.sqrt(dx * dx + dy * dy) || 1;
+
+      if(length < 10){
+        if(rand() > 0.95){
+          u.q = ~~(rand() * heartPointsCount);
+        } else {
+          if(rand() > 0.99) u.D *= -1;
+          u.q += u.D;
+          u.q %= heartPointsCount;
+          if(u.q < 0) u.q += heartPointsCount;
+        }
+      }
+
+      u.vx += -dx / length * u.speed;
+      u.vy += -dy / length * u.speed;
+      u.trace[0].x += u.vx;
+      u.trace[0].y += u.vy;
+      u.vx *= u.force;
+      u.vy *= u.force;
+
+      for(k = 0; k < u.trace.length - 1;){
+        var T = u.trace[k];
+        var N = u.trace[++k];
+        N.x -= config.traceK * (N.x - T.x);
+        N.y -= config.traceK * (N.y - T.y);
+      }
+
+      ctx.fillStyle = u.f;
+      for(k = 0; k < u.trace.length; k++){
+        ctx.fillRect(u.trace[k].x, u.trace[k].y, 1, 1);
+      }
+    }
+
+    if(Date.now() - startTime >= 10000){
+      heartStopped = true;
+      canvas.classList.add("hide");
+      createFallingPhotos();
+      return;
+    }
+
+    window.requestAnimationFrame(loop, canvas);
+  }
+
+  loop();
+}
+
+var s = document.readyState;
+if(s === "complete" || s === "loaded" || s === "interactive"){
+  initHeart();
+} else {
+  document.addEventListener("DOMContentLoaded", initHeart, false);
+}
+
+</script>
+
+</body>
+</html>
