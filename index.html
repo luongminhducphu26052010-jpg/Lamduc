@@ -1,714 +1,626 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Đường đến trái tim lam</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Heart To Falling Photos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght=700&display=swap" rel="stylesheet">
 
-<style>
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    user-select: none;
-    -webkit-user-select: none;
-    touch-action: none; 
-}
+  <style>
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+    }
 
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #0d0b14, #06050a);
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 10px;
-    overflow: hidden;
-}
+    html,body{
+      width:100%;
+      height:100%;
+      overflow:hidden;
+      font-family:Arial,sans-serif;
+      background:
+        radial-gradient(circle at top, rgba(255,120,180,0.2), transparent 30%),
+        radial-gradient(circle at bottom, rgba(120,100,255,0.25), transparent 32%),
+        linear-gradient(180deg,#0f0520 0%,#010108 100%);
+    }
 
-.container {
-    width: 100%;
-    max-width: 420px;
-    background: rgba(15, 13, 24, 0.85);
-    backdrop-filter: blur(10px);
-    border-radius: 35px;
-    padding: 20px 15px;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-    border: 2px solid #1f1b33;
-    text-align: center;
-    position: relative;
-}
+    body::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      background-image:
+        radial-gradient(2px 2px at 10% 20%, rgba(255,255,255,.95), transparent 60%),
+        radial-gradient(2px 2px at 20% 70%, rgba(255,255,255,.8), transparent 60%),
+        radial-gradient(1.5px 1.5px at 35% 35%, rgba(255,255,255,.9), transparent 60%),
+        radial-gradient(2px 2px at 50% 15%, rgba(255,255,255,.85), transparent 60%),
+        radial-gradient(1.5px 1.5px at 65% 45%, rgba(255,255,255,.88), transparent 60%),
+        radial-gradient(2px 2px at 82% 30%, rgba(255,255,255,.92), transparent 60%),
+        radial-gradient(2px 2px at 90% 72%, rgba(255,255,255,.86), transparent 60%);
+      animation:twinkle 4s ease-in-out infinite;
+    }
 
-h1 {
-    color: #00bfff;
-    font-size: 24px;
-    margin-bottom: 12px;
-    font-weight: 800;
-    text-shadow: 0 0 10px rgba(0, 191, 255, 0.6), 0 0 20px rgba(0, 191, 255, 0.3);
-}
+    @keyframes twinkle{
+      0%,100%{
+        opacity:1;
+      }
+      50%{
+        opacity:.4;
+      }
+    }
 
-.stats {
-    display: flex;
-    justify-content: space-around;
-    background: rgba(31, 27, 51, 0.6);
-    padding: 10px;
-    border-radius: 18px;
-    margin-bottom: 15px;
-    font-weight: bold;
-    color: #00bfff;
-    font-size: 15px;
-    border: 1px solid rgba(0, 191, 255, 0.2);
-}
+    #heart{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      z-index:1;
+      background:rgba(0,0,0,0.12);
+      transition:opacity 1.4s ease, transform 1.4s ease, filter 1.4s ease;
+    }
 
-.canvas-container {
-    width: 100%;
-    position: relative;
-    margin: 0 auto;
-}
+    #heart.hide{
+      opacity:0;
+      transform:scale(.9);
+      filter:blur(5px);
+      pointer-events:none;
+    }
 
-canvas {
-    width: 100%;
-    max-width: 380px;
-    aspect-ratio: 1 / 1;
-    display: block;
-    margin: auto;
-    border-radius: 24px;
-    background: #07060b;
-    border: 4px solid #1f1b33;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
-}
+    #falling-scene{
+      position:absolute;
+      inset:0;
+      z-index:2;
+      opacity:0;
+      transition:1.5s;
+      overflow:hidden;
+      pointer-events:none;
+    }
 
-.controls {
-    margin-top: 18px;
-    display: grid;
-    grid-template-columns: repeat(3, 76px);
-    grid-template-rows: repeat(2, 66px);
-    justify-content: center;
-    gap: 14px;
-}
+    #falling-scene.show{
+      opacity:1;
+      pointer-events:auto;
+    }
 
-button.ctrl-btn {
-    width: 76px;
-    height: 66px;
-    border: none;
-    border-radius: 22px;
-    background: linear-gradient(135deg, #25213b, #171426);
-    color: #00bfff;
-    font-size: 28px;
-    font-weight: bold;
-    cursor: pointer;
-    box-shadow: 0 6px 0 #0f0d1a, 0 8px 15px rgba(0,0,0,0.5);
-    transition: all 0.05s ease;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border: 1px solid rgba(0, 191, 255, 0.1);
-    touch-action: manipulation; 
-}
+    .photo-container{
+      position:absolute;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      opacity:0;
+      animation:floatPhoto 4s ease-in-out infinite;
+    }
 
-button.ctrl-btn:active {
-    transform: translateY(5px);
-    box-shadow: 0 1px 0 #0f0d1a;
-}
+    @keyframes floatPhoto{
+      0%{
+        transform:translateY(0px) rotate(-2deg);
+      }
+      50%{
+        transform:translateY(-10px) rotate(2deg);
+      }
+      100%{
+        transform:translateY(0px) rotate(-2deg);
+      }
+    }
 
-.up { grid-column: 2; grid-row: 1; }
-.left { grid-column: 1; grid-row: 2; }
-.down { grid-column: 2; grid-row: 2; }
-.right { grid-column: 3; grid-row: 2; }
+    .string{
+      width:5px;
+      background:linear-gradient(to bottom, rgba(255,255,255,0.98), rgba(255,255,255,0.5));
+      box-shadow:
+        0 0 10px rgba(255,120,190,1),
+        0 0 15px rgba(160,120,255,.8);
+      border-radius:5px;
+    }
 
-.restart {
-    width: 100%;
-    margin-top: 18px;
-    height: 48px;
-    font-size: 15px;
-    font-weight: bold;
-    background: transparent;
-    color: #6c5ce7;
-    border: 2px solid #4834d4;
-    border-radius: 18px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    touch-action: manipulation;
-}
-.restart:active {
-    background: rgba(72, 52, 212, 0.2);
-}
+    .photo-frame{
+      width:130px;
+      height:175px;
+      border-radius:20px;
+      overflow:hidden;
+      border:5px solid rgba(255,255,255,.9);
+      background:rgba(255,255,255,.15);
+      box-shadow:
+        0 25px 60px rgba(0,0,0,.8),
+        0 0 35px rgba(255,120,190,.45);
+      margin-top:-5px;
+      position:relative;
+    }
 
-.win-popup {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) scale(0.5);
-    background: #0f0d1a;
-    padding: 30px 25px;
-    border-radius: 30px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.8);
-    border: 3px solid #00bfff;
-    text-align: center;
-    z-index: 10;
-    display: none;
-    opacity: 0;
-    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    width: 85%;
-    max-width: 320px;
-    touch-action: manipulation;
-}
-.win-popup.show {
-    display: block;
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
-}
-.win-popup h2 {
-    color: #00bfff;
-    margin-bottom: 15px;
-    font-size: 26px;
-    text-shadow: 0 0 10px rgba(0, 191, 255, 0.5);
-}
-.win-popup button {
-    padding: 12px 30px;
-    background: linear-gradient(135deg, #00bfff, #0080ff);
-    border: none;
-    color: white;
-    font-weight: bold;
-    border-radius: 18px;
-    cursor: pointer;
-    margin-top: 10px;
-    touch-action: manipulation;
-}
+    @media (max-width: 768px) {
+      .photo-frame{
+        width:90px;
+        height:120px;
+      }
+    }
 
-/* Giao diện kết thúc ngọt ngào xuất hiện sau Jumpscare */
-#love-screen {
-    display: none;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    animation: fadeIn 1s ease forwards;
-}
+    .photo-frame::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(
+        135deg,
+        rgba(255,255,255,.45) 0%,
+        rgba(255,255,255,.15) 35%,
+        transparent 70%
+      );
+    }
 
-#love-screen h2 {
-    color: #ff4f93;
-    font-size: 28px;
-    font-weight: 800;
-    margin-bottom: 25px;
-    line-height: 1.4;
-    text-shadow: 0 0 15px rgba(255, 79, 147, 0.6);
-}
+    .photo-frame img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+    }
 
-.love-buttons {
-    display: flex;
-    gap: 15px;
-}
+    #message-container{
+      position:absolute;
+      inset:0;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      z-index:3;
+      opacity:0;
+      pointer-events:none;
+      transition:1s;
+      padding:20px;
+    }
 
-.love-btn {
-    padding: 12px 25px;
-    font-size: 16px;
-    font-weight: bold;
-    border: none;
-    border-radius: 20px;
-    cursor: pointer;
-    color: white;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-    transition: transform 0.1s ease;
-    touch-action: manipulation;
-}
-.love-btn.yes {
-    background: linear-gradient(135deg, #ff4f93, #ff2a7f);
-}
-.love-btn.no {
-    background: linear-gradient(135deg, #747d8c, #2f3542);
-}
-.love-btn:active {
-    transform: scale(0.95);
-}
+    #message-container.show{
+      opacity:1;
+      pointer-events:auto;
+    }
 
-@keyframes fadeIn {
-    from { opacity: 0; transform: scale(0.9); }
-    to { opacity: 1; transform: scale(1); }
-}
+    #birthday-message{
+      color:white;
+      font-size:1.4rem;
+      text-align:center;
+      text-shadow:
+        0 0 30px rgba(255,120,190,1),
+        0 0 60px rgba(160,120,255,.9),
+        0 0 100px rgba(255,120,190,.6);
+      font-weight:bold;
+      letter-spacing:1px;
+      line-height:1.6;
+      font-family:'Dancing Script', cursive; max-width:95vw; word-wrap:break-word;
+      animation:glow 2s ease-in-out infinite alternate;
+    }
 
-/* =======================================================
-   🔥 SIÊU HỆ THỐNG JUMPSCARE CO GIẬT - ÂM BẢN CỰC MẠNH 🔥
-   ======================================================= */
-#jumpscare-layer {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: black;
-    z-index: 9999;
-    display: none;
-    justify-content: center;
-    align-items: center;
-    overflow: hidden;
-}
+    @keyframes glow{
+      0%{
+        text-shadow:
+          0 0 30px rgba(255,120,190,1),
+          0 0 60px rgba(160,120,255,.9),
+          0 0 100px rgba(255,120,190,.6);
+      }
+      100%{
+        text-shadow:
+          0 0 50px rgba(255,120,190,1),
+          0 0 80px rgba(160,120,255,.9),
+          0 0 120px rgba(255,120,190,.8);
+      }
+    }
 
-#jumpscare-layer img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transform: scale(1);
-}
+    @media (max-width: 768px) {
+      #birthday-message{
+        font-size:1.05rem;
+        padding:0 20px;
+      }
+    }
 
-@keyframes strobe-insane {
-    0% { background-color: #ff0000; }
-    25% { background-color: #000000; }
-    50% { background-color: #7a0000; }
-    75% { background-color: #000000; }
-    100% { background-color: #ff0000; }
-}
+    /* NÚT BẬT NHẠC THEO YÊU CẦU */
+    #musicControls{
+      position: fixed;
+      bottom: 20px;
+      right: 15px;
+      z-index: 1000;
+      text-align: center;
+    }
 
-@keyframes glitch-ghost {
-    0% { transform: translate(15px, -15px) scale(1.1) rotate(2deg); filter: invert(0) contrast(1.5); }
-    10% { transform: translate(-20px, 10px) scale(1.5) rotate(-3deg); filter: invert(1) contrast(2); }
-    20% { transform: translate(-5px, -25px) scale(1.2) rotate(4deg); filter: invert(0) grayscale(0.5); }
-    30% { transform: translate(25px, 15px) scale(1.6) rotate(-2deg); filter: invert(1) brightness(1.5); }
-    40% { transform: translate(-15px, -10px) scale(0.9) rotate(0deg); filter: invert(0); }
-    50% { transform: translate(30px, -5px) scale(1.7) rotate(5deg); filter: invert(1) contrast(3); }
-    60% { transform: translate(-25px, 25px) scale(1.1) rotate(-5deg); filter: invert(0) sepia(1); }
-    70% { transform: translate(10px, -20px) scale(1.4) rotate(3deg); filter: invert(1); }
-    80% { transform: translate(-30px, -15px) scale(1.6) rotate(-4deg); filter: invert(0) saturate(5); }
-    90% { transform: translate(20px, 20px) scale(1.2) rotate(1deg); filter: invert(1) brightness(2); }
-    100% { transform: translate(-10px, -10px) scale(1.5) rotate(-1deg); filter: invert(0); }
-}
+    #playMusicBtn{
+      padding: 18px 45px;
+      border: none;
+      border-radius: 60px;
+      font-size: 1.15rem;
+      font-weight: bold;
+      color: white;
+      cursor: pointer;
+      background: linear-gradient(135deg,#ff5ea8,#8c6dff);
+      box-shadow: 0 12px 45px rgba(255,120,190,.75);
+      transition: .3s;
+    }
 
-.screaming-layer-insane {
-    animation: strobe-insane 0.02s infinite !important;
-}
+    #playMusicBtn:hover{
+      transform: scale(1.08);
+    }
 
-.screaming-img-insane {
-    animation: glitch-ghost 0.03s infinite !important;
-}
-</style>
+    #playMusicBtn.playing{
+      background: linear-gradient(135deg,#333,#555);
+    }
+
+    /* CSS NÚT BẤM TRÒ CHƠI MỚI */
+    #gameBtn {
+      margin-top: 25px;
+      padding: 14px 35px;
+      border: none;
+      border-radius: 50px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: white;
+      cursor: pointer;
+      background: linear-gradient(135deg, #12c2e9, #c471ed, #f64f59);
+      box-shadow: 0 10px 30px rgba(196, 113, 237, 0.6);
+      transition: 0.4s ease;
+      opacity: 0;
+      transform: scale(0.8);
+      pointer-events: none;
+    }
+
+    #gameBtn.show {
+      opacity: 1;
+      transform: scale(1);
+      pointer-events: auto;
+    }
+
+    #gameBtn:hover {
+      transform: scale(1.1);
+      box-shadow: 0 15px 40px rgba(246, 79, 89, 0.8);
+    }
+  </style>
 </head>
+
 <body>
 
-<div class="container" id="game-box">
-    <div id="main-game-content">
-        <h1>💙 Đường đến trái tim lam 💙</h1>
+<!-- AUDIO ẨN -->
+<audio id="backgroundMusic" autoplay loop>
+  <source src="https://files.catbox.moe/zyxthq.mp3" type="audio/mpeg">
+</audio>
 
-        <div class="stats">
-            <div>Màn: <span id="level">1</span>/5</div>
-            <div>Bước: <span id="steps">0</span></div>
-            <div>⏱️ <span id="time">0</span>s</div>
-        </div>
-
-        <div class="canvas-container">
-            <canvas id="game" width="400" height="400"></canvas>
-        </div>
-
-        <div class="controls">
-            <button class="ctrl-btn up" onpointerdown="handleMoveButton(0,-1)">▲</button>
-            <button class="ctrl-btn left" onpointerdown="handleMoveButton(-1,0)">◀</button>
-            <button class="ctrl-btn down" onpointerdown="handleMoveButton(0,1)">▼</button>
-            <button class="ctrl-btn right" onpointerdown="handleMoveButton(1,0)">▶</button>
-        </div>
-
-        <button class="restart" onpointerdown="resetGame()">🔄 Chơi lại màn này</button>
-    </div>
-
-    <div id="love-screen">
-        <h2>Bé iu có bị giật mình hong? 🥺❤️</h2>
-        <div class="love-buttons">
-            <button class="love-btn yes" onpointerdown="alert('Thương thương bé iu nhiều lắm nhaaa! 🥰')">Có dọ 🥺</button>
-            <button class="love-btn no" onpointerdown="alert('Quá dữ luôn, không hổ danh bé iu! 😎')">Hong nha 😏</button>
-        </div>
-    </div>
+<!-- NÚT BẬT NHẠC THEO YÊU CẦU -->
+<div id="musicControls">
+  <button id="playMusicBtn">đừng bấm vào ngại qa:<</button>
 </div>
 
-<div class="win-popup" id="win-popup">
-    <h2 id="win-msg">Hoan hô!</h2>
-    <button onpointerdown="nextLevel()">Tiếp tục ➔</button>
-</div>
+<canvas id="heart"></canvas>
+<div id="falling-scene"></div>
 
-<div id="jumpscare-layer">
-    <img src="https://images.unsplash.com/photo-1509248961158-e54f6934749c?q=80&w=1000&auto=format&fit=crop" alt="Scary" id="scary-img">
+<div id="message-container">
+  <div id="birthday-message">
+    <!-- THAY ĐỔI NỘI DUNG CHỮ Ở ĐÂY -->
+    Chúc ebe của anh 1thang6 zui zẻ nhaa<br>Bao nhiêu tuổi thì vẫn mãi là em bé của anh thuồii<br>yeuu embe nhieu nhắmm ❤️
+    <!-- KẾT THÚC THAY ĐỔI -->
+  </div>
+  <!-- THÊM NÚT BẤM CHƠI GAME VÀO ĐÂY -->
+  <button id="gameBtn">bấm vào đây để chơi trò chơi nè lamm</button>
 </div>
 
 <script>
-const canvas = document.getElementById("game");
-const ctx = canvas.getContext("2d");
 
-const CONFIG_IMAGES = {
-    player: "https://cdn.phototourl.com/free/2026-05-30-30612d2f-103c-46ab-9dd8-46d99d0a348b.jpg",  
-    goal: "https://cdn.phototourl.com/free/2026-05-30-667ec778-b79e-408e-8d1a-20d7a39e9690.jpg"     
-};
+window.requestAnimationFrame =
+  window.__requestAnimationFrame ||
+  window.requestAnimationFrame ||
+  window.webkitRequestAnimationFrame ||
+  window.mozRequestAnimationFrame ||
+  window.oRequestAnimationFrame ||
+  window.msRequestAnimationFrame ||
+  (function () {
+    return function (callback, element) {
+      var lastTime = element && element.__lastTime;
+      if (lastTime === undefined) lastTime = 0;
+      var currTime = Date.now();
+      var timeToCall = Math.max(1, 33 - (currTime - lastTime));
+      window.setTimeout(callback, timeToCall);
+      if (element) element.__lastTime = currTime + timeToCall;
+    };
+  })();
 
-const imgPlayer = new Image();
-let isPlayerImgLoaded = false;
-if (CONFIG_IMAGES.player && CONFIG_IMAGES.player.startsWith("http")) {
-    imgPlayer.src = CONFIG_IMAGES.player;
-    imgPlayer.onload = () => { isPlayerImgLoaded = true; };
-}
+window.isDevice = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(
+  ((navigator.userAgent || navigator.vendor || window.opera) + "").toLowerCase()
+);
 
-const imgGoal = new Image();
-let isGoalImgLoaded = false;
-if (CONFIG_IMAGES.goal && CONFIG_IMAGES.goal.startsWith("http")) {
-    imgGoal.src = CONFIG_IMAGES.goal;
-    imgGoal.onload = () => { isGoalImgLoaded = true; };
-}
-
-let audioCtx = null;
-function initAudio() {
-    if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    }
-    if (audioCtx && audioCtx.state === 'suspended') {
-        audioCtx.resume();
-    }
-}
-
-const levels = [
-    // Level 1
-    [
-        [1,1,1,1,1,1,1,1,1,1],
-        [1,0,0,0,1,0,0,0,0,1],
-        [1,0,1,0,1,0,1,1,0,1],
-        [1,0,1,0,0,0,1,0,0,1],
-        [1,0,1,1,1,1,1,0,1,1],
-        [1,0,0,0,0,0,0,0,0,1],
-        [1,1,1,1,1,0,1,1,0,1],
-        [1,0,0,0,1,0,1,0,0,1],
-        [1,0,1,0,0,0,1,0,0,1],
-        [1,1,1,1,1,1,1,1,1,1]
-    ],
-    // Level 2
-    [
-        [1,1,1,1,1,1,1,1,1,1],
-        [1,0,0,0,0,0,1,0,0,1],
-        [1,0,1,1,1,0,1,0,1,1],
-        [1,0,0,0,1,0,0,0,0,1],
-        [1,1,1,0,1,1,1,1,0,1],
-        [1,0,0,0,0,0,0,1,0,1],
-        [1,0,1,1,1,1,0,1,0,1],
-        [1,0,0,0,0,1,0,0,0,1],
-        [1,0,1,1,0,0,0,1,0,1],
-        [1,1,1,1,1,1,1,1,1,1]
-    ],
-    // Level 3
-    [
-        [1,1,1,1,1,1,1,1,1,1],
-        [1,0,1,0,0,0,0,0,0,1],
-        [1,0,1,0,1,1,1,1,0,1],
-        [1,0,0,0,1,0,0,1,0,1],
-        [1,1,1,0,1,0,1,1,0,1],
-        [1,0,0,0,0,0,1,0,0,1],
-        [1,0,1,1,1,0,1,1,0,1],
-        [1,0,1,0,0,0,0,1,0,1],
-        [1,0,0,0,1,1,0,0,0,1],
-        [1,1,1,1,1,1,1,1,1,1]
-    ],
-    // Level 4
-    [
-        [1,1,1,1,1,1,1,1,1,1],
-        [1,0,0,0,0,1,0,0,0,1],
-        [1,1,1,1,0,1,0,1,1,1],
-        [1,0,0,0,0,0,0,0,0,1],
-        [1,0,1,1,1,1,1,1,0,1],
-        [1,0,1,0,0,0,0,1,0,1],
-        [1,0,1,0,1,1,0,1,0,1],
-        [1,0,1,0,1,0,0,0,0,1],
-        [1,0,0,0,1,1,1,1,0,1],
-        [1,1,1,1,1,1,1,1,1,1]
-    ],
-    // Level 5
-    [
-        [1,1,1,1,1,1,1,1,1,1],
-        [1,0,0,0,0,0,0,0,0,1],
-        [1,0,1,1,1,1,1,1,1,1],
-        [1,0,0,0,0,0,0,0,0,1],
-        [1,1,1,1,1,1,1,1,0,1],
-        [1,0,0,0,0,0,0,0,0,1],
-        [1,0,1,1,1,1,1,1,1,1],
-        [1,0,0,0,0,0,0,0,0,1],
-        [1,1,1,1,1,1,1,1,0,1],
-        [1,1,1,1,1,1,1,1,1,1]
-    ]
+const imageLinks = [
+ "https://cdn.phototourl.com/free/2026-05-28-d89dcf79-a735-40e6-9678-23911530293c.jpg",
+      "https://cdn.phototourl.com/free/2026-05-28-e2dc33bc-91d7-4ea0-94d2-276398ec771d.jpg",
+      "https://cdn.phototourl.com/free/2026-05-28-ad2b4387-f58d-4e58-8dfe-b4cf62a1abf0.jpg",
+      "https://cdn.phototourl.com/free/2026-05-28-cc19039f-e1f8-419b-9048-9e43ef3fa67f.jpg",
+      "https://cdn.phototourl.com/free/2026-05-28-363e8d54-d8d2-4951-befb-4e8647061c91.jpg",
+      "https://cdn.phototourl.com/free/2026-05-28-6cab9ecf-c18f-4b9c-aa0a-1743fe06ecc3.jpg",
+      "https://cdn.phototourl.com/free/2026-05-28-c6b2791d-78b6-42c5-8790-53245b09e1a2.jpg",
+      "https://cdn.phototourl.com/free/2026-05-28-80a1340f-743e-4f44-bb60-e82a87281bf0.jpg",
+      "https://cdn.phototourl.com/free/2026-05-28-b4ea41d5-e7ae-4ad0-8c70-472da061641c.jpg",
+      "https://cdn.phototourl.com/free/2026-05-28-b4ea41d5-e7ae-4ad0-8c70-472da061641c.jpg",
+      "https://cdn.phototourl.com/free/2026-05-28-f0bf8bda-3ab1-417f-a7e6-ffea8f4beec8.jpg",
+      "https://cdn.phototourl.com/member/2026-05-28-3ae4c82f-24ff-48b7-a4a9-f5bfc32d8949.jpg",
+      "https://cdn.phototourl.com/member/2026-05-28-cb2c82a5-ae30-49b2-8292-6b19712d3c47.jpg",
+      "https://cdn.phototourl.com/member/2026-05-28-d8e48673-58b9-47ec-bc5e-986b185acad0.jpg",
+      "https://cdn.phototourl.com/member/2026-05-28-af4c5106-e4a3-4d7f-a65b-6c1490ce8875.jpg",
+      "https://cdn.phototourl.com/member/2026-05-28-0cf0535f-37ce-451f-8f29-1f63b98d02aa.jpg",
+      "https://cdn.phototourl.com/member/2026-05-28-1c822fdf-5873-47c7-bf02-d29e77b5847a.jpg",
+      "https://cdn.phototourl.com/member/2026-05-28-ef7b7d23-a7d3-4d93-b0ea-25c71f4a187a.jpg",
+      "https://cdn.phototourl.com/member/2026-05-28-d80e8372-df9b-47d8-bdfd-6e3ef3cfb977.jpg",
+      "https://cdn.phototourl.com/member/2026-05-28-e0e5e921-0f6b-42f8-b9ab-53ba876548a1.jpg"
 ];
 
-const size = 40;
-let currentLevel = 0;
-let player = {x: 1, y: 1};
-let goal = {x: 8, y: 8};
-let steps = 0;
-let time = 0;
-let timerInterval;
-let isJumpscareActive = false;
-let playerAngle = 0; 
+let loaded = false;
+let heartStopped = false;
+let fallingStarted = false;
 
-function startTimer() {
-    clearInterval(timerInterval);
-    timerInterval = setInterval(() => {
-        if(!isJumpscareActive) {
-            time++;
-            document.getElementById("time").textContent = time;
-        }
-    }, 1000);
+const music = document.getElementById('backgroundMusic');
+const playBtn = document.getElementById('playMusicBtn');
+let isPlaying = false;
+
+// ĐƯỜNG DẪN ĐẾN TRÒ CHƠI CỦA BẠN (Hãy đổi link "https://google.com" thành link game của bạn tại đây)
+const URL_TRO_CHOI = "https://luongminhducphu26052010-jpg.github.io/ewfwefew/";
+
+// XỬ LÝ NÚT BẬT NHẠC
+playBtn.addEventListener('click', function() {
+  if (!isPlaying) {
+    music.play().then(() => {
+      isPlaying = true;
+      playBtn.textContent = 'o noooo';
+      playBtn.classList.add('playing');
+    }).catch(e => {
+      alert('Ủa không phát được nhạc! Kiểm tra lại link nhé.');
+    });
+  } else {
+    music.pause();
+    isPlaying = false;
+    playBtn.textContent = 'đừng bấm vào ngại qa:<';
+    playBtn.classList.remove('playing');
+  }
+});
+
+function showMessage(){
+  document.getElementById("message-container").classList.add("show");
+  
+  // Hiển thị nút bấm trò chơi trễ hơn lời chúc 1 chút để tạo hiệu ứng mượt mà
+  setTimeout(() => {
+    document.getElementById("gameBtn").classList.add("show");
+  }, 1000);
 }
 
-function draw() {
-    ctx.clearRect(0, 0, 400, 400);
-    let maze = levels[currentLevel];
+// Xử lý sự kiện khi nhấn vào nút chơi trò chơi
+document.getElementById("gameBtn").addEventListener("click", function() {
+  window.location.href = URL_TRO_CHOI;
+});
 
-    ctx.fillStyle = "#07060b";
-    ctx.fillRect(0, 0, 400, 400);
+function createFallingPhotos(){
+  if(fallingStarted) return;
+  fallingStarted = true;
 
-    for (let y = 0; y < maze.length; y++) {
-        for (let x = 0; x < maze[y].length; x++) {
-            if (maze[y][x] === 1) {
-                ctx.shadowColor = "rgba(0, 0, 0, 0.6)";
-                ctx.shadowBlur = 5;
-                ctx.shadowOffsetY = 3;
+  const scene = document.getElementById("falling-scene");
+  scene.classList.add("show");
 
-                let wallGrad = ctx.createLinearGradient(x*size, y*size, (x+1)*size, (y+1)*size);
-                wallGrad.addColorStop(0, "#1c182e");
-                wallGrad.addColorStop(1, "#110e1c");
-                ctx.fillStyle = wallGrad;
+  const mobile = window.innerWidth < 768;
+  const photoWidth = mobile ? 90 : 130;
+  const photoHeight = mobile ? 120 : 175;
+  const stringLength = window.innerHeight * 0.42;
+  let photosFaded = 0;
+  let usedXPositions = [];
 
-                drawRoundedRect(ctx, x * size + 1, y * size + 1, size - 2, size - 2, 6);
-                ctx.shadowBlur = 0;
-                ctx.shadowOffsetY = 0;
+  function getRandomX(){
+    for(let t=0;t<100;t++){
+      let x = 25 + Math.random() * (window.innerWidth - photoWidth - 50);
+      let tooClose = false;
+      for(let j=0;j<usedXPositions.length;j++){
+        if(Math.abs(x - usedXPositions[j]) < photoWidth + 40){
+          tooClose = true;
+          break;
+        }
+      }
+      if(!tooClose){
+        usedXPositions.push(x);
+        return x;
+      }
+    }
+    return Math.random() * window.innerWidth;
+  }
+
+  imageLinks.forEach((link,index)=>{
+    const container = document.createElement("div");
+    container.className = "photo-container";
+
+    const string = document.createElement("div");
+    string.className = "string";
+    string.style.height = stringLength + "px";
+
+    const frame = document.createElement("div");
+    frame.className = "photo-frame";
+
+    const img = document.createElement("img");
+    img.src = link;
+
+    frame.appendChild(img);
+    container.appendChild(string);
+    container.appendChild(frame);
+
+    const xPos = getRandomX();
+    container.style.left = xPos + "px";
+    container.style.top = "-" + (photoHeight + stringLength + 300 + Math.random()*200) + "px";
+    scene.appendChild(container);
+
+    const delay = 1000 + index * 1800 + Math.random() * 1200;
+
+    setTimeout(()=>{
+      const finalY = (window.innerHeight * (0.35 + Math.random()*0.4)) - photoHeight - stringLength;
+      container.style.transition = "opacity .8s ease, top 7.5s cubic-bezier(0.25,0.46,0.45,0.94)";
+      container.style.opacity = "1";
+      container.style.top = finalY + "px";
+
+      container.addEventListener("transitionend",function handler(e){
+        if(e.propertyName !== "top") return;
+        container.removeEventListener("transitionend", handler);
+
+        setTimeout(()=>{
+          container.style.transition = "opacity 1.5s ease";
+          container.style.opacity = "0";
+
+          container.addEventListener("transitionend",function fadeHandler(e2){
+            if(e2.propertyName !== "opacity") return;
+            container.removeEventListener("transitionend", fadeHandler);
+
+            photosFaded++;
+            if(photosFaded >= imageLinks.length){
+              setTimeout(()=> showMessage(), 800);
             }
-        }
-    }
-
-    if (isGoalImgLoaded) {
-        ctx.drawImage(imgGoal, goal.x * size + 2, goal.y * size + 2, size - 4, size - 4);
-    } else {
-        ctx.shadowColor = "#00bfff";
-        ctx.shadowBlur = 15;
-        ctx.fillStyle = "#00bfff";
-        ctx.beginPath();
-        ctx.arc(goal.x * size + 20, goal.y * size + 20, 14, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.shadowBlur = 0;
-
-        ctx.fillStyle = "#fff";
-        ctx.font = "bold 13px Arial";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText("💙", goal.x * size + 20, goal.y * size + 20);
-    }
-
-    let pX = player.x * size + 20; 
-    let pY = player.y * size + 20; 
-
-    ctx.save(); 
-    ctx.translate(pX, pY);      
-    ctx.rotate(playerAngle);    
-
-    ctx.shadowColor = "#ff4f93";
-    ctx.shadowBlur = 12;
-
-    ctx.beginPath();
-    ctx.arc(0, 0, 16, 0, Math.PI * 2);
-    ctx.clip(); 
-    ctx.shadowBlur = 0; 
-
-    if (isPlayerImgLoaded) {
-        ctx.drawImage(imgPlayer, -16, -16, 32, 32);
-    } else {
-        let ballGrad = ctx.createRadialGradient(0, 0, 2, 0, 0, 16);
-        ballGrad.addColorStop(0, "#ff75a9");
-        ballGrad.addColorStop(1, "#ff2a7f");
-        ctx.fillStyle = ballGrad;
-        ctx.fill();
-    }
-
-    ctx.restore(); 
+          });
+        },1500);
+      });
+    },delay);
+  });
 }
 
-function updateAnimation() {
-    if (!isJumpscareActive) {
-        playerAngle += 0.04; 
-        draw();
+function initHeart(){
+  if(loaded) return;
+  loaded = true;
+
+  var mobile = window.isDevice;
+  var koef = mobile ? 0.3 : 1;
+  var canvas = document.getElementById("heart");
+  var ctx = canvas.getContext("2d");
+  var width = canvas.width = koef * innerWidth;
+  var height = canvas.height = koef * innerHeight;
+  var rand = Math.random;
+
+  ctx.fillStyle = "rgba(0,0,0,1)";
+  ctx.fillRect(0, 0, width, height);
+
+  function heartPosition(rad){
+    return[
+      Math.pow(Math.sin(rad), 3),
+      -(15 * Math.cos(rad) - 5 * Math.cos(2 * rad) - 2 * Math.cos(3 * rad) - Math.cos(4 * rad))
+    ];
+  }
+
+  function scaleAndTranslate(pos, sx, sy, dx, dy){
+    return[dx + pos[0]*sx, dy + pos[1]*sy];
+  }
+
+  window.addEventListener("resize", function () {
+    width = canvas.width = koef * innerWidth;
+    height = canvas.height = koef * innerHeight;
+    ctx.fillStyle = "rgba(0,0,0,1)";
+    ctx.fillRect(0, 0, width, height);
+  });
+
+  var traceCount = mobile ? 15 : 50;
+  var pointsOrigin = [];
+  var i;
+  var dr = mobile ? 0.35 : 0.1;
+
+  for(i = 0; i < Math.PI * 2; i += dr){
+    pointsOrigin.push(scaleAndTranslate(heartPosition(i), 210, 13, 0, 0));
+  }
+  for(i = 0; i < Math.PI * 2; i += dr){
+    pointsOrigin.push(scaleAndTranslate(heartPosition(i), 150, 9, 0, 0));
+  }
+  for(i = 0; i < Math.PI * 2; i += dr){
+    pointsOrigin.push(scaleAndTranslate(heartPosition(i), 90, 5, 0, 0));
+  }
+
+  var heartPointsCount = pointsOrigin.length;
+  var targetPoints = [];
+
+  function pulse(kx, ky){
+    for(i = 0; i < pointsOrigin.length; i++){
+      targetPoints[i] = [];
+      targetPoints[i][0] = kx * pointsOrigin[i][0] + width / 2;
+      targetPoints[i][1] = ky * pointsOrigin[i][1] + height / 2;
     }
-    requestAnimationFrame(updateAnimation);
-}
+  }
 
-function drawRoundedRect(ctx, x, y, width, height, radius) {
-    ctx.beginPath();
-    ctx.moveTo(x + radius, y);
-    ctx.lineTo(x + width - radius, y);
-    ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
-    ctx.lineTo(x + width, y + height - radius);
-    ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-    ctx.lineTo(x + radius, y + height - radius);
-    ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
-    ctx.lineTo(x, y + radius);
-    ctx.quadraticCurveTo(x, y, x + radius, y);
-    ctx.closePath();
-    ctx.fill();
-}
-
-function handleMoveButton(dx, dy) {
-    initAudio(); 
-    move(dx, dy);
-}
-
-function move(dx, dy) {
-    if (isJumpscareActive) return;
-    
-    let maze = levels[currentLevel];
-    let nx = player.x + dx;
-    let ny = player.y + dy;
-
-    if (maze[ny] && maze[ny][nx] === 0) {
-        player.x = nx;
-        player.y = ny;
-        steps++;
-        document.getElementById("steps").textContent = steps;
-        checkWin();
+  var e = [];
+  for(i = 0; i < heartPointsCount; i++){
+    var x = rand() * width;
+    var y = rand() * height;
+    var trace = [];
+    for(var k = 0; k < traceCount; k++){
+      trace[k] = {x: x, y: y};
     }
-}
 
-function checkWin() {
-    if (player.x === goal.x && player.y === goal.y) {
-        if (currentLevel === 4) {
-            triggerJumpscare();
+    e[i] = {
+      vx: 0, vy: 0,
+      speed: rand() + 5,
+      q: ~~(rand() * heartPointsCount),
+      D: 2 * (i % 2) - 1,
+      force: 0.2 * rand() + 0.7,
+      f: "hsla(0," + ~~(40 * rand() + 60) + "%," + ~~(60 * rand() + 20) + "%,.3)",
+      trace: trace
+    };
+  }
+
+  var config = {traceK: 0.4, timeDelta: 0.01};
+  var time = 0;
+  var startTime = Date.now();
+
+  function loop(){
+    if(heartStopped) return;
+
+    var n = -Math.cos(time);
+    pulse((1 + n) * 0.5, (1 + n) * 0.5);
+    time += ((Math.sin(time) < 0) ? 9 : (n > 0.8 ? 0.2 : 1)) * config.timeDelta;
+
+    ctx.fillStyle = "rgba(0,0,0,.1)";
+    ctx.fillRect(0, 0, width, height);
+
+    for(i = e.length; i--;){
+      var u = e[i];
+      var q = targetPoints[u.q];
+      var dx = u.trace[0].x - q[0];
+      var dy = u.trace[0].y - q[1];
+      var length = Math.sqrt(dx * dx + dy * dy) || 1;
+
+      if(length < 10){
+        if(rand() > 0.95){
+          u.q = ~~(rand() * heartPointsCount);
         } else {
-            let msg = "Chúc mừng!";
-            if (currentLevel === 0) msg = "dỏi thí 🥳";
-            if (currentLevel === 1) msg = "tốt nhắm 🥰";
-            if (currentLevel === 2) msg = "quauuu 😱";
-            if (currentLevel === 3) msg = "gút chop 🌟";
-
-            document.getElementById("win-msg").innerText = msg;
-            document.getElementById("win-popup").style.display = "block";
-            setTimeout(() => {
-                document.getElementById("win-popup").classList.add("show");
-            }, 50);
+          if(rand() > 0.99) u.D *= -1;
+          u.q += u.D;
+          u.q %= heartPointsCount;
+          if(u.q < 0) u.q += heartPointsCount;
         }
-    }
-}
+      }
 
-function nextLevel() {
-    document.getElementById("win-popup").classList.remove("show");
-    setTimeout(() => {
-        document.getElementById("win-popup").style.display = "none";
-    }, 300);
-    
-    currentLevel++;
-    document.getElementById("level").textContent = currentLevel + 1;
-    player = {x: 1, y: 1};
-    steps = 0;
-    document.getElementById("steps").textContent = steps;
-}
+      u.vx += -dx / length * u.speed;
+      u.vy += -dy / length * u.speed;
+      u.trace[0].x += u.vx;
+      u.trace[0].y += u.vy;
+      u.vx *= u.force;
+      u.vy *= u.force;
 
-function resetGame() {
-    player = {x: 1, y: 1};
-    steps = 0;
-    time = 0;
-    document.getElementById("steps").textContent = 0;
-    document.getElementById("time").textContent = 0;
-    document.getElementById("win-popup").classList.remove("show");
-    document.getElementById("win-popup").style.display = "none";
-    
-    // Khôi phục lại giao diện game cũ nếu chơi lại
-    document.getElementById("main-game-content").style.display = "block";
-    document.getElementById("love-screen").style.display = "none";
-    
-    isJumpscareActive = false;
-    
-    const layer = document.getElementById("jumpscare-layer");
-    layer.style.display = "none";
-    layer.classList.remove("screaming-layer-insane");
-    document.getElementById("scary-img").classList.remove("screaming-img-insane");
-    
-    startTimer();
-}
+      for(k = 0; k < u.trace.length - 1;){
+        var T = u.trace[k];
+        var N = u.trace[++k];
+        N.x -= config.traceK * (N.x - T.x);
+        N.y -= config.traceK * (N.y - T.y);
+      }
 
-function triggerJumpscare() {
-    isJumpscareActive = true;
-    initAudio(); 
-
-    const jumpScareLayer = document.getElementById("jumpscare-layer");
-    const scaryImg = document.getElementById("scary-img");
-
-    jumpScareLayer.style.display = "flex";
-    jumpScareLayer.classList.add("screaming-layer-insane");
-    scaryImg.classList.add("screaming-img-insane");
-
-    try {
-        if (audioCtx) {
-            let now = audioCtx.currentTime;
-            
-            let osc1 = audioCtx.createOscillator();
-            osc1.type = 'sawtooth';
-            osc1.frequency.setValueAtTime(880, now); 
-            osc1.frequency.exponentialRampToValueAtTime(150, now + 2.0); 
-
-            let osc2 = audioCtx.createOscillator();
-            osc2.type = 'square';
-            osc2.frequency.setValueAtTime(120, now); 
-            osc2.frequency.linearRampToValueAtTime(600, now + 1.5);
-
-            let bufferSize = audioCtx.sampleRate * 2.5; 
-            let buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-            let data = buffer.getChannelData(0);
-            for (let i = 0; i < bufferSize; i++) {
-                data[i] = Math.random() * 2 - 1;
-            }
-            let noiseNode = audioCtx.createBufferSource();
-            noiseNode.buffer = buffer;
-
-            let gainNode = audioCtx.createGain();
-            gainNode.gain.setValueAtTime(2.5, now);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, now + 2.4); 
-
-            let filter = audioCtx.createBiquadFilter();
-            filter.type = 'highpass';
-            filter.frequency.setValueAtTime(450, now);
-
-            osc1.connect(gainNode);
-            osc2.connect(gainNode);
-            noiseNode.connect(filter);
-            filter.connect(gainNode);
-            
-            gainNode.connect(audioCtx.destination);
-
-            osc1.start(now);
-            osc2.start(now);
-            noiseNode.start(now);
-
-            osc1.stop(now + 2.5);
-            osc2.stop(now + 2.5);
-            noiseNode.stop(now + 2.5);
-        }
-    } catch(e) {
-        console.log("Audio Error: ", e);
+      ctx.fillStyle = u.f;
+      for(k = 0; k < u.trace.length; k++){
+        ctx.fillRect(u.trace[k].x, u.trace[k].y, 1, 1);
+      }
     }
 
-    setTimeout(() => {
-        // 1. Tắt màn hình hù dọa
-        jumpScareLayer.style.display = "none";
-        jumpScareLayer.classList.remove("screaming-layer-insane");
-        scaryImg.classList.remove("screaming-img-insane");
-        
-        // 2. ẨN TOÀN BỘ TRÒ CHƠI CHÍNH BIẾN MẤT HẾT
-        document.getElementById("main-game-content").style.display = "none";
-        document.getElementById("win-popup").style.display = "none";
-        
-        // 3. HIỆN DÒNG CHỮ HỎI THĂM BÉ IU
-        document.getElementById("love-screen").style.display = "flex";
-    }, 2500);
+    if(Date.now() - startTime >= 10000){
+      heartStopped = true;
+      canvas.classList.add("hide");
+      createFallingPhotos();
+      return;
+    }
+
+    window.requestAnimationFrame(loop, canvas);
+  }
+
+  loop();
 }
 
-document.addEventListener('gesturestart', function (e) {
-    e.preventDefault();
-});
+var s = document.readyState;
+if(s === "complete" || s === "loaded" || s === "interactive"){
+  initHeart();
+} else {
+  document.addEventListener("DOMContentLoaded", initHeart, false);
+}
 
-document.addEventListener("keydown", (e) => {
-    initAudio();
-    if (e.key === "ArrowUp") move(0, -1);
-    if (e.key === "ArrowDown") move(0, 1);
-    if (e.key === "ArrowLeft") move(-1, 0);
-    if (e.key === "ArrowRight") move(1, 0);
-});
-
-startTimer();
-requestAnimationFrame(updateAnimation); 
 </script>
 
 </body>
