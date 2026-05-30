@@ -12,6 +12,7 @@
     box-sizing: border-box;
     user-select: none;
     -webkit-user-select: none;
+    touch-action: none; 
 }
 
 body {
@@ -102,6 +103,7 @@ button.ctrl-btn {
     justify-content: center;
     align-items: center;
     border: 1px solid rgba(0, 191, 255, 0.1);
+    touch-action: manipulation; 
 }
 
 button.ctrl-btn:active {
@@ -126,6 +128,7 @@ button.ctrl-btn:active {
     border-radius: 18px;
     cursor: pointer;
     transition: all 0.2s ease;
+    touch-action: manipulation;
 }
 .restart:active {
     background: rgba(72, 52, 212, 0.2);
@@ -148,6 +151,7 @@ button.ctrl-btn:active {
     transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     width: 85%;
     max-width: 320px;
+    touch-action: manipulation;
 }
 .win-popup.show {
     display: block;
@@ -169,6 +173,58 @@ button.ctrl-btn:active {
     border-radius: 18px;
     cursor: pointer;
     margin-top: 10px;
+    touch-action: manipulation;
+}
+
+/* Giao diện kết thúc ngọt ngào xuất hiện sau Jumpscare */
+#love-screen {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    animation: fadeIn 1s ease forwards;
+}
+
+#love-screen h2 {
+    color: #ff4f93;
+    font-size: 28px;
+    font-weight: 800;
+    margin-bottom: 25px;
+    line-height: 1.4;
+    text-shadow: 0 0 15px rgba(255, 79, 147, 0.6);
+}
+
+.love-buttons {
+    display: flex;
+    gap: 15px;
+}
+
+.love-btn {
+    padding: 12px 25px;
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    color: white;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    transition: transform 0.1s ease;
+    touch-action: manipulation;
+}
+.love-btn.yes {
+    background: linear-gradient(135deg, #ff4f93, #ff2a7f);
+}
+.love-btn.no {
+    background: linear-gradient(135deg, #747d8c, #2f3542);
+}
+.love-btn:active {
+    transform: scale(0.95);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
 }
 
 /* =======================================================
@@ -195,7 +251,6 @@ button.ctrl-btn:active {
     transform: scale(1);
 }
 
-/* Chớp tắt nhấp nháy Đỏ - Đen điên cuồng */
 @keyframes strobe-insane {
     0% { background-color: #ff0000; }
     25% { background-color: #000000; }
@@ -204,7 +259,6 @@ button.ctrl-btn:active {
     100% { background-color: #ff0000; }
 }
 
-/* Ảnh giật điên dại: Vừa phóng to thu nhỏ vừa xoay, chớp hiệu ứng âm bản kinh dị */
 @keyframes glitch-ghost {
     0% { transform: translate(15px, -15px) scale(1.1) rotate(2deg); filter: invert(0) contrast(1.5); }
     10% { transform: translate(-20px, 10px) scale(1.5) rotate(-3deg); filter: invert(1) contrast(2); }
@@ -213,7 +267,7 @@ button.ctrl-btn:active {
     40% { transform: translate(-15px, -10px) scale(0.9) rotate(0deg); filter: invert(0); }
     50% { transform: translate(30px, -5px) scale(1.7) rotate(5deg); filter: invert(1) contrast(3); }
     60% { transform: translate(-25px, 25px) scale(1.1) rotate(-5deg); filter: invert(0) sepia(1); }
-    70% { transform: translate(10px, -20px) scale(1.4) rotate(3deg); filter: inline; filter: invert(1); }
+    70% { transform: translate(10px, -20px) scale(1.4) rotate(3deg); filter: invert(1); }
     80% { transform: translate(-30px, -15px) scale(1.6) rotate(-4deg); filter: invert(0) saturate(5); }
     90% { transform: translate(20px, 20px) scale(1.2) rotate(1deg); filter: invert(1) brightness(2); }
     100% { transform: translate(-10px, -10px) scale(1.5) rotate(-1deg); filter: invert(0); }
@@ -231,31 +285,41 @@ button.ctrl-btn:active {
 <body>
 
 <div class="container" id="game-box">
-    <h1>💙 Đường đến trái tim lam 💙</h1>
+    <div id="main-game-content">
+        <h1>💙 Đường đến trái tim lam 💙</h1>
 
-    <div class="stats">
-        <div>Màn: <span id="level">1</span>/5</div>
-        <div>Bước: <span id="steps">0</span></div>
-        <div>⏱️ <span id="time">0</span>s</div>
+        <div class="stats">
+            <div>Màn: <span id="level">1</span>/5</div>
+            <div>Bước: <span id="steps">0</span></div>
+            <div>⏱️ <span id="time">0</span>s</div>
+        </div>
+
+        <div class="canvas-container">
+            <canvas id="game" width="400" height="400"></canvas>
+        </div>
+
+        <div class="controls">
+            <button class="ctrl-btn up" onpointerdown="handleMoveButton(0,-1)">▲</button>
+            <button class="ctrl-btn left" onpointerdown="handleMoveButton(-1,0)">◀</button>
+            <button class="ctrl-btn down" onpointerdown="handleMoveButton(0,1)">▼</button>
+            <button class="ctrl-btn right" onpointerdown="handleMoveButton(1,0)">▶</button>
+        </div>
+
+        <button class="restart" onpointerdown="resetGame()">🔄 Chơi lại màn này</button>
     </div>
 
-    <div class="canvas-container">
-        <canvas id="game" width="400" height="400"></canvas>
+    <div id="love-screen">
+        <h2>Bé iu có bị giật mình hong? 🥺❤️</h2>
+        <div class="love-buttons">
+            <button class="love-btn yes" onpointerdown="alert('Thương thương bé iu nhiều lắm nhaaa! 🥰')">Có dọ 🥺</button>
+            <button class="love-btn no" onpointerdown="alert('Quá dữ luôn, không hổ danh bé iu! 😎')">Hong nha 😏</button>
+        </div>
     </div>
-
-    <div class="controls">
-        <button class="ctrl-btn up" onclick="handleMoveButton(0,-1)">▲</button>
-        <button class="ctrl-btn left" onclick="handleMoveButton(-1,0)">◀</button>
-        <button class="ctrl-btn down" onclick="handleMoveButton(0,1)">▼</button>
-        <button class="ctrl-btn right" onclick="handleMoveButton(1,0)">▶</button>
-    </div>
-
-    <button class="restart" onclick="resetGame()">🔄 Chơi lại màn này</button>
 </div>
 
 <div class="win-popup" id="win-popup">
     <h2 id="win-msg">Hoan hô!</h2>
-    <button onclick="nextLevel()">Tiếp tục ➔</button>
+    <button onpointerdown="nextLevel()">Tiếp tục ➔</button>
 </div>
 
 <div id="jumpscare-layer">
@@ -266,30 +330,25 @@ button.ctrl-btn:active {
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
-// =========================================================================
-// CHỖ ĐỂ THÊM HÌNH ẢNH CỦA BẠN: Dán link ảnh vào giữa hai dấu ngoặc kép ""
-// =========================================================================
 const CONFIG_IMAGES = {
     player: "https://cdn.phototourl.com/free/2026-05-30-30612d2f-103c-46ab-9dd8-46d99d0a348b.jpg",  
     goal: "https://cdn.phototourl.com/free/2026-05-30-667ec778-b79e-408e-8d1a-20d7a39e9690.jpg"     
 };
-// =========================================================================
 
 const imgPlayer = new Image();
 let isPlayerImgLoaded = false;
-if (CONFIG_IMAGES.player && CONFIG_IMAGES.player !== "https://cdn.phototourl.com/free/2026-05-30-30612d2f-103c-46ab-9dd8-46d99d0a348b.jpg") {
+if (CONFIG_IMAGES.player && CONFIG_IMAGES.player.startsWith("http")) {
     imgPlayer.src = CONFIG_IMAGES.player;
-    imgPlayer.onload = () => { isPlayerImgLoaded = true; draw(); };
+    imgPlayer.onload = () => { isPlayerImgLoaded = true; };
 }
 
 const imgGoal = new Image();
 let isGoalImgLoaded = false;
-if (CONFIG_IMAGES.goal && CONFIG_IMAGES.goal !== "https://cdn.phototourl.com/free/2026-05-30-667ec778-b79e-408e-8d1a-20d7a39e9690.jpg") {
+if (CONFIG_IMAGES.goal && CONFIG_IMAGES.goal.startsWith("http")) {
     imgGoal.src = CONFIG_IMAGES.goal;
-    imgGoal.onload = () => { isGoalImgLoaded = true; draw(); };
+    imgGoal.onload = () => { isGoalImgLoaded = true; };
 }
 
-// Khởi tạo AudioContext để phát tức thì không trễ nhịp
 let audioCtx = null;
 function initAudio() {
     if (!audioCtx) {
@@ -376,6 +435,7 @@ let steps = 0;
 let time = 0;
 let timerInterval;
 let isJumpscareActive = false;
+let playerAngle = 0; 
 
 function startTimer() {
     clearInterval(timerInterval);
@@ -431,26 +491,40 @@ function draw() {
         ctx.fillText("💙", goal.x * size + 20, goal.y * size + 20);
     }
 
+    let pX = player.x * size + 20; 
+    let pY = player.y * size + 20; 
+
+    ctx.save(); 
+    ctx.translate(pX, pY);      
+    ctx.rotate(playerAngle);    
+
+    ctx.shadowColor = "#ff4f93";
+    ctx.shadowBlur = 12;
+
+    ctx.beginPath();
+    ctx.arc(0, 0, 16, 0, Math.PI * 2);
+    ctx.clip(); 
+    ctx.shadowBlur = 0; 
+
     if (isPlayerImgLoaded) {
-        ctx.drawImage(imgPlayer, player.x * size + 2, player.y * size + 2, size - 4, size - 4);
+        ctx.drawImage(imgPlayer, -16, -16, 32, 32);
     } else {
-        let pX = player.x * size + 20;
-        let pY = player.y * size + 20;
-
-        ctx.shadowColor = "#ff4f93";
-        ctx.shadowBlur = 10;
-        ctx.fillStyle = "#ff4f93";
-        ctx.beginPath();
-        ctx.arc(pX, pY, 14, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.shadowBlur = 0;
-
-        ctx.fillStyle = "#fff";
-        ctx.beginPath();
-        ctx.arc(pX - 4, pY - 3, 2, 0, Math.PI * 2);
-        ctx.arc(pX + 4, pY - 3, 2, 0, Math.PI * 2);
+        let ballGrad = ctx.createRadialGradient(0, 0, 2, 0, 0, 16);
+        ballGrad.addColorStop(0, "#ff75a9");
+        ballGrad.addColorStop(1, "#ff2a7f");
+        ctx.fillStyle = ballGrad;
         ctx.fill();
     }
+
+    ctx.restore(); 
+}
+
+function updateAnimation() {
+    if (!isJumpscareActive) {
+        playerAngle += 0.04; 
+        draw();
+    }
+    requestAnimationFrame(updateAnimation);
 }
 
 function drawRoundedRect(ctx, x, y, width, height, radius) {
@@ -485,7 +559,6 @@ function move(dx, dy) {
         player.y = ny;
         steps++;
         document.getElementById("steps").textContent = steps;
-        draw();
         checkWin();
     }
 }
@@ -521,7 +594,6 @@ function nextLevel() {
     player = {x: 1, y: 1};
     steps = 0;
     document.getElementById("steps").textContent = steps;
-    draw();
 }
 
 function resetGame() {
@@ -532,6 +604,11 @@ function resetGame() {
     document.getElementById("time").textContent = 0;
     document.getElementById("win-popup").classList.remove("show");
     document.getElementById("win-popup").style.display = "none";
+    
+    // Khôi phục lại giao diện game cũ nếu chơi lại
+    document.getElementById("main-game-content").style.display = "block";
+    document.getElementById("love-screen").style.display = "none";
+    
     isJumpscareActive = false;
     
     const layer = document.getElementById("jumpscare-layer");
@@ -540,12 +617,8 @@ function resetGame() {
     document.getElementById("scary-img").classList.remove("screaming-img-insane");
     
     startTimer();
-    draw();
 }
 
-// =======================================================
-// KÍCH HOẠT ĐỒNG BỘ TUYỆT ĐỐI JUMPSCARE CO GIẬT TỘT CÙNG
-// =======================================================
 function triggerJumpscare() {
     isJumpscareActive = true;
     initAudio(); 
@@ -553,29 +626,24 @@ function triggerJumpscare() {
     const jumpScareLayer = document.getElementById("jumpscare-layer");
     const scaryImg = document.getElementById("scary-img");
 
-    // 1. BẬT ẢNH CO GIẬT & ĐỔI MÀU ÂM BẢN CHỚP NHÁY LIÊN TỤC KHÔNG TRỄ TAY
     jumpScareLayer.style.display = "flex";
     jumpScareLayer.classList.add("screaming-layer-insane");
     scaryImg.classList.add("screaming-img-insane");
 
-    // 2. PHÁT TỔ HỢP 3 TẦNG SÓNG ÂM KINH HOÀNG (BÙNG NỔ NGAY LẬP TỨC)
     try {
         if (audioCtx) {
             let now = audioCtx.currentTime;
             
-            // Tầng 1: Tiếng thét rít (Sóng răng cưu chói tai)
             let osc1 = audioCtx.createOscillator();
             osc1.type = 'sawtooth';
-            osc1.frequency.setValueAtTime(880, now); // Tần số cao nhức tai
-            osc1.frequency.exponentialRampToValueAtTime(150, now + 2.0); // Tuột dốc âm thanh rợn người
+            osc1.frequency.setValueAtTime(880, now); 
+            osc1.frequency.exponentialRampToValueAtTime(150, now + 2.0); 
 
-            // Tầng 2: Tiếng rền gầm rú biến dạng (Sóng vuông rè)
             let osc2 = audioCtx.createOscillator();
             osc2.type = 'square';
             osc2.frequency.setValueAtTime(120, now); 
             osc2.frequency.linearRampToValueAtTime(600, now + 1.5);
 
-            // Tầng 3: Tiếng nổ hỗn loạn (White Noise phá thính giác)
             let bufferSize = audioCtx.sampleRate * 2.5; 
             let buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
             let data = buffer.getChannelData(0);
@@ -585,17 +653,14 @@ function triggerJumpscare() {
             let noiseNode = audioCtx.createBufferSource();
             noiseNode.buffer = buffer;
 
-            // Thiết lập bộ khuếch đại (Đẩy Volume lên mức 2.5 cực đại)
             let gainNode = audioCtx.createGain();
             gainNode.gain.setValueAtTime(2.5, now);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, now + 2.4); // Nhỏ dần về cuối
+            gainNode.gain.exponentialRampToValueAtTime(0.01, now + 2.4); 
 
-            // Bộ lọc âm cao gắt gao
             let filter = audioCtx.createBiquadFilter();
             filter.type = 'highpass';
             filter.frequency.setValueAtTime(450, now);
 
-            // Kết nối toàn bộ hệ thống phát ra loa đồng thời
             osc1.connect(gainNode);
             osc2.connect(gainNode);
             noiseNode.connect(filter);
@@ -603,12 +668,10 @@ function triggerJumpscare() {
             
             gainNode.connect(audioCtx.destination);
 
-            // Khởi động đồng loạt 0.00s
             osc1.start(now);
             osc2.start(now);
             noiseNode.start(now);
 
-            // Dừng âm thanh tự động sau khi hù xong
             osc1.stop(now + 2.5);
             osc2.stop(now + 2.5);
             noiseNode.stop(now + 2.5);
@@ -617,17 +680,24 @@ function triggerJumpscare() {
         console.log("Audio Error: ", e);
     }
 
-    // Giữ màn hù dọa quằn quại trong 2.5 giây
     setTimeout(() => {
+        // 1. Tắt màn hình hù dọa
         jumpScareLayer.style.display = "none";
         jumpScareLayer.classList.remove("screaming-layer-insane");
         scaryImg.classList.remove("screaming-img-insane");
         
-        document.getElementById("win-msg").innerText = "Chúc mừng eiuu ❤️";
-        document.getElementById("win-popup").style.display = "block";
-        document.getElementById("win-popup").classList.add("show");
+        // 2. ẨN TOÀN BỘ TRÒ CHƠI CHÍNH BIẾN MẤT HẾT
+        document.getElementById("main-game-content").style.display = "none";
+        document.getElementById("win-popup").style.display = "none";
+        
+        // 3. HIỆN DÒNG CHỮ HỎI THĂM BÉ IU
+        document.getElementById("love-screen").style.display = "flex";
     }, 2500);
 }
+
+document.addEventListener('gesturestart', function (e) {
+    e.preventDefault();
+});
 
 document.addEventListener("keydown", (e) => {
     initAudio();
@@ -638,7 +708,7 @@ document.addEventListener("keydown", (e) => {
 });
 
 startTimer();
-draw();
+requestAnimationFrame(updateAnimation); 
 </script>
 
 </body>
